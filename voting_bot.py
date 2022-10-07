@@ -1,11 +1,9 @@
 #!/usr/bin/python
-'''
-@author: Carlos Olimpio
-This script was made with study purposes.
 
-'''
 from robobrowser import RoboBrowser
 import time
+import constants
+import ignored_constants as iconstants
 
 def printResult(index, browser):
 	points_html = str(browser.parsed)
@@ -13,74 +11,66 @@ def printResult(index, browser):
 	print result
 
 def printLogInStatus(html, user):
-	if 'id="credits"' in html:
+	if constants.ID_CREDITS in html:
 		print '%s logged with success.' %(user)
 	else:
-		'Login Erro.'
+		constants.LOGIN_ERROR
 
-user = 'username'
-passw = 'password'
-login_url = 'http://www.thewebsitehere.com'
+print constants.START_MESSAGE
+print constants.ACCESSING_URL_MESSAGE
 
-print '*****Starting vote_scpit.py*****'
-print 'Accessing URL...'
+browser = RoboBrowser(history=True, parser=constants.HTML_PARSER)
+browser.open(iconstants.LOGIN_URL)
 
-browser = RoboBrowser(history=True, parser='html.parser')
-browser.open(login_url)
+# get form
+login_form = browser.get_form(id=constants.LOGIN_FORM)
 
-#get form
-login_form = browser.get_form(id='login_form')
+# fill with credentials
+login_form[constants.USERNAME].value = iconstants.USERNAME
+login_form[constants.PASSWORD].value = iconstants.PASSWORD
 
-#fill with credentials
-login_form['username'].value = user
-login_form['password'].value = passw
+print constants.LOGGING_IN_MESSAGE
 
-print 'Logging in...'
-
-#submit form
+# submit form
 browser.submit_form(login_form)
 
 html_logged = str(browser.parsed)
 printLogInStatus(html_logged, user)
 
-href = 'http://www.thewebsitehere.com'
-vote_links = ['7', '9', '10', '11', '13', '14']
-index = 0
+index = iconstants.INDEX
 
-reload_url = 'http://www.thewebsitehere.com'
+if constants.VOTE_SITE in html_logged:
+	while constants.VOTE_SITE in html_logged:
 
-if 'vote_topsite' in html_logged:
-	while 'vote_topsite' in html_logged:
+		print constants.VOTING_MESSAGE
 
-		print 'Voting...'
-
-		r = browser.session.post(href, data={'vote_link': vote_links[index], 'ref': '0'})
+		r = browser.session.post(iconstants.HREF_URL, data={constants.VOTE_LINK: iconstants.VOTE_LINKS[index], constants.REF: constants.HREF_ZERO})
 		browser._update_state(r)
-		time.sleep(31)	#sleeps 31 secs
+		time.sleep(constants.VOTING_TIME)
 
-		r = browser.session.get(reload_url + vote_links[index], params={'reload_link': '1', 'link': vote_links[index]})
+		r = browser.session.get(iconstants.RELOAD_URL + iconstants.VOTE_LINKS[index], params={constants.RELOAD_LINK: constants.RELOAD_ONE, constants.RELOAD_ONE: iconstants.VOTE_LINKS[index]})
 		browser._update_state(r)
-		time.sleep(2)
+		time.sleep(constants.RELOAD_TIME)
 
-		r = browser.session.post(href, data={'check': 'points'})
+		r = browser.session.post(iconstants.HREF_URL, data={constants.CHECK: constants.POINTS})
 		browser._update_state(r)
 
-		#Prints on the screen
+		# Prints on the screen
 		printResult(index, browser)
 
-		#move from next vote_link's index
+		# move from next vote_link's index
 		index = index + 1
 
 		#reaload page
 		r = browser.session.get(login_url)
 		browser._update_state(r)
 		html_logged = str(browser.parsed)	
-		time.sleep(3)
+		time.sleep(constants.RELOAD_TIME)
 
-	print 'End of program.'
+	print constants.END_OF_PROGRAM_MESSAGE
 
 else:
-	r = html_logged.find('Next vote after:')
+	r = html_logged.find(constants.NEXT_VOTE_AFTER_STRING)
 	if r != -1:
 		print html_logged[r:r+28]
 	

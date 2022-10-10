@@ -8,16 +8,16 @@ import ignored_constants as iconstants
 def printResult(index, browser):
 	points_html = str(browser.parsed)
 	result = 'Link %d voted with success! %s points' %(index+1, points_html)
-	print result
+	print(result)
 
 def printLogInStatus(html, user):
 	if constants.ID_CREDITS in html:
-		print '%s logged with success.' %(user)
+		print('%s logged with success.' %(user))
 	else:
 		constants.LOGIN_ERROR
 
-print constants.START_MESSAGE
-print constants.ACCESSING_URL_MESSAGE
+print(constants.START_MESSAGE)
+print(constants.ACCESSING_URL_MESSAGE)
 
 browser = RoboBrowser(history=True, parser=constants.HTML_PARSER)
 browser.open(iconstants.LOGIN_URL)
@@ -29,7 +29,7 @@ login_form = browser.get_form(id=constants.LOGIN_FORM)
 login_form[constants.USERNAME].value = iconstants.USERNAME
 login_form[constants.PASSWORD].value = iconstants.PASSWORD
 
-print constants.LOGGING_IN_MESSAGE
+print(constants.LOGGING_IN_MESSAGE)
 
 # submit form
 browser.submit_form(login_form)
@@ -42,7 +42,7 @@ index = iconstants.INDEX
 if constants.VOTE_SITE in html_logged:
 	while constants.VOTE_SITE in html_logged:
 
-		print constants.VOTING_MESSAGE
+		print(constants.VOTING_MESSAGE)
 
 		r = browser.session.post(iconstants.HREF_URL, data={constants.VOTE_LINK: iconstants.VOTE_LINKS[index], constants.REF: constants.HREF_ZERO})
 		browser._update_state(r)
@@ -64,13 +64,13 @@ if constants.VOTE_SITE in html_logged:
 		#reaload page
 		r = browser.session.get(login_url)
 		browser._update_state(r)
-		html_logged = str(browser.parsed)	
+		html_logged = str(browser.parsed)
 		time.sleep(constants.RELOAD_TIME)
 
-	print constants.END_OF_PROGRAM_MESSAGE
+	print(constants.END_OF_PROGRAM_MESSAGE)
 
 else:
 	r = html_logged.find(constants.NEXT_VOTE_AFTER_STRING)
 	if r != -1:
-		print html_logged[r:r+28]
+		print(html_logged[r:r+28])
 	
